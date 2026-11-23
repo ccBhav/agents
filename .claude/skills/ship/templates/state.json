@@ -1,0 +1,14 @@
+{
+  "run_id": "",
+  "task_source": "ticket|text",
+  "branch": "",
+  "phase": "intake",
+  "phases_done": [],
+  "iteration": 0,
+  "max_iterations": 3,
+  "plan_revisions": 0,
+  "last_result": null,
+  "status": "running",
+  "started_at": "",
+  "updated_at": ""
+}
