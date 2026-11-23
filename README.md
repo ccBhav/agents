@@ -26,6 +26,7 @@ Repo-agnostic orchestrator–worker pattern for Claude Code. Agents learn each r
 - **Bounded loops** — 3 implement↔verify iterations, 3 plan revisions, 1 re-review. Then stop and escalate.
 - **Separation of duties** — planner and reviewers are read-only; verifier never edits; implementer can't leave the plan's file list without reporting a deviation.
 - **Repo-adaptive** — every agent preloads the `repo-context` skill: read CLAUDE.md/AGENTS.md (nested too), docs, tooling config and nearby code; invoke matching repo skills via the Skill tool. The planner writes `context.md` once per run so all agents share the same standards.
+- **Six-pager plans** — the planner writes `plan.md` as an Amazon-style six-pager (narrative sections 1–8 + FAQ, ≤ ~3,500 words) with appendices: A = code changes in TypeScript, JavaScript and Go, each with a worked "how it works" example; B = the execution plan the implementer follows; C = data and references.
 - **Model tiering** — opus for planning/review (judgment), sonnet for implementation, haiku for running checks.
 - **Guard hook** — blocks push, `rm -rf`, `reset --hard`, destructive Mongo, and `.env`/key edits regardless of what any agent decides.
 

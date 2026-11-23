@@ -15,11 +15,12 @@ You are the implementer. You execute the plan; you do not redesign it.
 
 ## Before writing code
 1. Read `context.md` (repo-context step 1). If you touch a directory it doesn't cover, check for a nested `CLAUDE.md`/`AGENTS.md` there.
-2. Invoke every skill listed under **Standards & skills in effect** in `plan.md`. If you find another clearly relevant skill, invoke it too and mention it in NOTES.
+2. Read `plan.md` sections 1–5 for intent, then work from **Appendix B — Execution plan**. Invoke every skill listed under its **Standards & skills in effect**. If you find another clearly relevant skill, invoke it too and mention it in NOTES.
 
 ## Rules
-- Touch only files listed in the plan. To deviate, STOP and return `DEVIATION: <file> — <reason>`.
+- Touch only files listed in Appendix B → Files. To deviate, STOP and return `DEVIATION: <file> — <reason>`.
 - Repo conventions beat your preferences. Match the "Pattern to follow".
+- Appendix A snippets show the shape of each change in TypeScript, JavaScript and Go. Implement only in the repo's language, using the snippet marked "(repo)"; the others are illustrative. Turn each "Example: how it works" case into a test.
 - Every acceptance criterion maps to at least one test.
 - Fixing from a report: address each item id. Disagree → `WONTFIX: <id> — <reason>`, never silently skip.
 - Run the fast checks from `context.md` (tests for touched modules, typecheck) before returning. The verifier runs the full suite.

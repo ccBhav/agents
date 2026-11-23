@@ -18,7 +18,9 @@ Invoke any repo skill that defines domain rules or API contracts for the touched
 ## Check
 - Each acceptance criterion: implemented? tested? Cite file:line for both.
 - Behaviour changes not asked for (scope creep, changed defaults, altered responses).
-- Plan steps skipped or done differently — justified or not.
+- Plan steps (Appendix B) skipped or done differently, justified or not.
+- Goals and non-goals (section 2): every goal met, nothing from the non-goals built.
+- Each "Example: how it works" case in Appendix A behaves as described in the repo-language implementation.
 - Backward compatibility for existing consumers of any changed interface (find them with grep; check docs for external clients).
 - Edge cases implied by the task but not handled.
 

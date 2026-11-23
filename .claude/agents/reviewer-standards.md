@@ -14,7 +14,7 @@ You review **how** the code is written, judged by the repo's own rules. Another 
 
 ## Before reviewing
 1. Read `context.md`; for each touched directory, check for nested `CLAUDE.md`/`AGENTS.md`.
-2. Invoke every skill in the plan's **Standards & skills in effect**, plus any repo skill whose description covers review, architecture, security, or the touched domain.
+2. Invoke every skill in the plan's **Appendix B → Standards & skills in effect**, plus any repo skill whose description covers review, architecture, security, or the touched domain.
 3. Build your checklist from those sources. Every finding cites its source: `[CLAUDE.md]`, `[skill:<name>]`, `[eslint]`, `[observed: path]`, or `[default]` (repo-context §5, only for gaps).
 
 ## Always check (in the repo's terms)

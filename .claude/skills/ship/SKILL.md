@@ -36,7 +36,7 @@ Copy `templates/state.json` to start. If a run dir already exists, **resume** fr
 
 ### 1. Plan — `planner` agent
 - Dispatch `planner` with: path to `task.md` and the run dir. It discovers the repo's standards, commands and skills (preloaded `repo-context` skill), writes `context.md`, then `plan.md`.
-- **GATE (human):** show the user the plan's *Summary*, *Standards & skills in effect*, *Files*, and *Risks* sections and ask for approval with AskUserQuestion: Approve / Revise (with notes) / Abort. Loop to planner with notes on Revise. Max 3 revisions, then stop and ask.
+- **GATE (human):** the plan is an Amazon-style six-pager. Show the user its *1. Introduction*, *2. Goals and non-goals*, *7. Risks and mitigations*, and from Appendix B the *Files* table and *Standards & skills in effect*, plus the path to `plan.md` for the full read (including the TypeScript/JavaScript/Go snippets in Appendix A). Ask for approval with AskUserQuestion: Approve / Revise (with notes) / Abort. Loop to planner with notes on Revise. Max 3 revisions, then stop and ask.
 - Skip this gate only if the user passed `--auto` in `$ARGUMENTS`.
 
 ### 2. Implement — `implementer` agent
