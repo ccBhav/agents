@@ -1,7 +1,10 @@
 {
   "run_id": "",
   "task_source": "ticket|text",
+  "size": "lite|full",
   "branch": "",
+  "base_branch": "",
+  "base_sha": "",
   "phase": "intake",
   "phases_done": [],
   "iteration": 0,

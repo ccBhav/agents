@@ -23,16 +23,17 @@ Higher wins on conflict.
 - A skill is relevant if its description matches the task's domain (e.g. architecture, API conventions, testing, a framework, a service like Stripe). Invoke every relevant one with the Skill tool **before** you start the work. Don't invoke skills that only produce output formats (docx, pptx, …).
 
 ## 4. Record what's in effect
-Write (planner) or confirm (others) a profile — planner writes it to `<run-dir>/context.md`:
+Produce (planner) or confirm (others) a profile. The planner returns it and the orchestrator saves it as `<run-dir>/context.md`:
 
 ```
 # Repo context
 Stack: <language, framework, db, test runner>
-Commands:
+Commands (check-only forms, no --fix/--write):
   typecheck: <cmd | none>
   lint: <cmd>
   test: <cmd>   single file: <cmd>
   build: <cmd | none>
+  integration: <cmd | none>   safe locally: yes (isolated DB/containers/mocks) | no | unknown
 Layering / structure: <how code is organised, from docs or observed>
 Standards (source → rule):
   - CLAUDE.md → ...
