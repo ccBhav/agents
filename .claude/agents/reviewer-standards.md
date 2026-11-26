@@ -26,6 +26,7 @@ You have no Write or Edit tool and must not change files with Bash. Return your 
 - Data access: unbounded queries, missing indexes, non-atomic multi-writes, irreversible migrations.
 - Errors: swallowed errors, inconsistent error shape, wrong status codes.
 - Tests: meaningful assertions, edge cases, no over-mocking.
+- Domain naming: new identifiers for domain concepts match the canonical terms in `GLOSSARY.md`; new ADRs in the diff follow the repo's ADR format.
 
 Only report what's in the diff. Verify each finding against surrounding code — no speculation. Don't flag style the linter already enforces.
 

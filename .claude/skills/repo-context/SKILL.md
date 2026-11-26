@@ -13,7 +13,7 @@ If the run dir has `context.md` (written by the planner), read it and skip to st
 ## 2. Read the repo's own rules — in priority order
 Higher wins on conflict.
 1. `CLAUDE.md` / `AGENTS.md` at the repo root, plus any nested ones in directories you will touch (nested overrides root for that subtree).
-2. `.claude/rules/`, `docs/adr/`, `docs/architecture*`, `CONTRIBUTING.md`, `STYLEGUIDE.md`.
+2. `.claude/rules/`, `docs/adr/`, `docs/architecture*`, `CONTRIBUTING.md`, `STYLEGUIDE.md`, and the domain glossary: `GLOSSARY.md` (or, if `GLOSSARY-MAP.md` exists, the glossary for the context you're in; some repos keep it in `CONTEXT.md`). Use its canonical terms.
 3. Tooling config — the enforced truth: `package.json` scripts, `tsconfig*.json`, eslint/prettier/biome config, `pyproject.toml`, `ruff.toml`, `Makefile`, `go.mod`, `.editorconfig`, CI workflows (`.github/workflows/*`).
 4. The code itself: 2–3 recent, well-tested files in the same module as your change. Their structure is the convention when nothing is written down.
 

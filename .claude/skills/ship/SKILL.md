@@ -7,7 +7,7 @@ description: Run the full plan → implement → verify → review → fix loop 
 
 You are the **orchestrator**. You do not write production code yourself. You dispatch subagents, own the run state, write the run files, enforce gates, and decide when to loop or stop. Subagents cannot spawn subagents, so all fan-out happens here.
 
-Input: `$ARGUMENTS` — a ticket key (e.g. `CC-123`) or a free-text task, plus optional flags: `--auto` (skip the plan gate), `--lite` / `--full` (force the plan size).
+Input: `$ARGUMENTS` — a ticket key (e.g. `CC-123`) or a free-text task, plus optional flags: `--auto` (unattended: no grilling, no plan gate), `--lite` / `--full` (force the plan size), `--no-grill` (skip the design interview).
 
 ## Run state
 
@@ -18,6 +18,8 @@ Every run lives in `.agent/runs/<run-id>/` where `<run-id>` = ticket key, or a k
   state.json        # phase, counters, base, size, status — update after EVERY phase
   task.md           # the normalized task / acceptance criteria
   context.md        # repo profile: stack, commands, standards, skills (from planner)
+  frontier.md       # open design decisions + facts found (planner prep pass)
+  decisions.md      # every decision resolved in the grilling session
   plan.md           # planner output (approved version)
   verify-<n>.md     # verifier report per iteration
   review-standards.md
@@ -58,13 +60,43 @@ Before dispatching the planner, verifier or a reviewer, record `git status --por
    - `full`: anything else.
    `--lite` / `--full` override. Tell the user the size and why in one line.
 
-### 1. Plan — `planner` agent
+### 1. Plan — prep → grill → write
+
+Planning uses Matt Pocock's **grill-with-docs** approach: before the plan is written, you interview the user about every open design decision, record sharpened domain terms in the repo's `GLOSSARY.md` and hard-to-reverse decisions as ADRs, then the planner writes the plan from those decisions.
+
+`grill-with-docs` is user-invoked only and is simply "run `grilling` + `domain-modeling`", so you load those two skills directly. They must be installed (repo or user scope):
+
+```bash
+npx skills@latest add mattpocock/skills --skill=grill-with-docs --skill=grilling --skill=domain-modeling
+```
+
+If either skill is missing, tell the user that command and ask: install it and retry, or continue with `--no-grill`. Don't imitate the skills from memory.
+
+#### 1a. Prep — `planner` (mode `prep`)
 - Run the read-only check around it.
-- Dispatch `planner` with: path to `task.md`, the run dir, and the size (`lite` or `full`). It returns two documents, `context.md` and `plan.md`, separated by a line `=====PLAN=====`. Save both.
-- **GATE (human), skipped only with `--auto`:**
-  - `full`: show *1. Introduction*, *2. Goals and non-goals*, *7. Risks and mitigations*, and from Appendix B the *Files* table and *Standards & skills in effect*, plus the path to `plan.md` (the full read includes the TypeScript/JavaScript/Go snippets in Appendix A).
-  - `lite`: show the whole plan; it's short.
-  - Ask with AskUserQuestion: **Approve** / **Revise** (with notes) / **Abort**. Revise → back to the planner with the notes. Max 3 revisions, then stop and ask. The user may also answer "make it full/lite" to re-plan at the other size.
+- Dispatch `planner` with: `task.md`, the run dir, size, mode `prep`. It returns `context.md` and `frontier.md` separated by `=====FRONTIER=====`. Save both.
+- `frontier.md` lists the **facts it already looked up** (never ask the user these) and the **open decisions** as a tree, each with a recommended answer and its dependencies.
+
+#### 1b. Grill — you, with the user
+Skip when: `--no-grill`; `--auto` (then copy every recommended answer into `decisions.md` marked `assumed (auto)` and write no glossary/ADR); or size `lite` **and** `frontier.md` has no open decisions.
+
+Otherwise:
+1. Call the Skill tool for `grilling` and for `domain-modeling`, and follow them for the rest of this step.
+2. Seed the design tree from `frontier.md`. Ask in rounds exactly as `grilling` prescribes (numbered questions, bold title, a ➡️ recommended answer, phrased so "yes" accepts it), only for decisions whose prerequisites are settled. Look up facts yourself (or with a read-only subagent) instead of asking.
+3. As `domain-modeling` prescribes, challenge terms against the repo's `GLOSSARY.md` (or the context's glossary when a `GLOSSARY-MAP.md` exists), write each resolved term to it immediately, and offer an ADR in `docs/adr/` only when a decision is hard to reverse, surprising without context, and the result of a real trade-off. These files are written on the run's branch and become part of the change set.
+4. After each round, append the resolved decisions to `decisions.md`:
+   `- **<decision>**: <answer> (why: <reason>) [ADR-NNNN if recorded]`
+   This file matters: the planner can't see this conversation, so anything not written here is lost.
+5. End when the frontier is empty and the user confirms you share an understanding. Record in `state.json`: `grilled: true`, the list of glossary/ADR files written (`grill_docs`).
+
+#### 1c. Write — `planner` (mode `write`)
+- Run the read-only check around it.
+- Dispatch `planner` with: `task.md`, the run dir (it reads `context.md`, `frontier.md`, `decisions.md`, and the glossary/ADRs), size, mode `write`, the `grill_docs` list, and any revision notes. It returns `plan.md`. Save it.
+
+#### Plan gate (human), skipped only with `--auto`
+- `full`: show *1. Introduction*, *2. Goals and non-goals*, *7. Risks and mitigations*, and from Appendix B the *Files* table and *Standards & skills in effect*, plus the path to `plan.md` (the full read includes the TypeScript/JavaScript/Go snippets in Appendix A).
+- `lite`: show the whole plan; it's short.
+- Ask with AskUserQuestion: **Approve** / **Revise** (with notes) / **Abort**. Revise → planner `write` again with the notes (if a note reopens a design decision, run another grilling round first and update `decisions.md`). Max 3 revisions, then stop and ask. The user may also answer "make it full/lite" to re-plan at the other size.
 
 ### 2. Implement — `implementer` agent
 - Dispatch `implementer` with the run dir (it reads `task.md`, `context.md`, `plan.md`) and, on later iterations, the latest `verify-<n>.md` and/or review files to address.

@@ -10,6 +10,8 @@
   "iteration": 0,
   "max_iterations": 3,
   "plan_revisions": 0,
+  "grilled": false,
+  "grill_docs": [],
   "last_result": null,
   "status": "running",
   "started_at": "",

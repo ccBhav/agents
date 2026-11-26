@@ -3,21 +3,18 @@
 Repo-agnostic orchestrator–worker pattern for Claude Code. Agents learn each repo's standards, commands and skills at run time.
 
 ```
-            /ship CC-123
-                 │
-   ┌─────────── orchestrator (main session, skills/ship) ───────────┐
-   │                                                                │
- intake ─► planner ─► [HUMAN GATE] ─► implementer ─► verifier ──┐   │
-                                          ▲            FAIL (≤3)│   │
-                                          └─────────────────────┘   │
-                                     PASS ▼                         │
-                    reviewer-standards ║ reviewer-spec  (parallel)  │
-                                     ▼                              │
-                         fix pass (implementer → verifier)          │
-                                     ▼                              │
-                           commit ─► summary ─► [HUMAN GATE: push]  │
-   └────────────────────────────────────────────────────────────────┘
-        state: .agent/runs/<run-id>/{state.json, plan.md, verify-n.md, review-*.md}
+/ship CC-123
+  intake ─► planner(prep) ─► GRILL with you ─► planner(write) ─► [GATE: approve plan]
+            frontier.md      glossary · ADRs    plan.md
+                             decisions.md
+     ─► implementer ─► verifier ──FAIL (≤3)──► implementer
+                          │ PASS
+                          ▼
+        reviewer-standards ║ reviewer-spec (parallel) ─► fix pass (once)
+                          ▼
+        commit ─► summary.md ─► [GATE: push]  (+ Claude Code's own push prompt)
+
+state: .agent/runs/<run-id>/{state.json, task, context, frontier, decisions, plan, verify-n, review-*, summary}
 ```
 
 ## Design choices
@@ -29,6 +26,7 @@ Repo-agnostic orchestrator–worker pattern for Claude Code. Agents learn each r
 - **Clean start**: intake refuses a dirty working tree and branches from the default branch.
 - **Separation of duties** — planner and reviewers are read-only; verifier never edits; implementer can't leave the plan's file list without reporting a deviation.
 - **Repo-adaptive** — every agent preloads the `repo-context` skill: read CLAUDE.md/AGENTS.md (nested too), docs, tooling config and nearby code; invoke matching repo skills via the Skill tool. The planner writes `context.md` once per run so all agents share the same standards.
+- **Grill before planning** ([grill-with-docs](https://www.aihero.dev/skills-grill-with-docs) by Matt Pocock): the planner first maps the open design decisions (`frontier.md`, facts already looked up); `/ship` then interviews you round by round using the `grilling` and `domain-modeling` skills, writes resolved terms to `GLOSSARY.md` and hard-to-reverse decisions as ADRs in `docs/adr/`, and saves every answer in `decisions.md`. The planner writes the plan from those decisions. Skipped with `--no-grill` or `--auto`, and for lite tasks with nothing to decide.
 - **Lite or full plans**: intake sizes the task. *Lite* (≤ 3 files, no schema/API/auth/money/time-math changes) gets a short plan in the repo's language only; *full* gets the six-pager. Override with `--lite` / `--full`.
 - **Six-pager plans** — the planner writes `plan.md` as an Amazon-style six-pager (narrative sections 1–8 + FAQ, ≤ ~3,500 words) with appendices: A = code changes in TypeScript, JavaScript and Go, each with a worked "how it works" example; B = the execution plan the implementer follows; C = data and references.
 - **Model tiering** — opus for planning/review (judgment), sonnet for implementation, haiku for running checks.
@@ -56,6 +54,13 @@ CLAUDE.snippet.md                 # snippet to APPEND to the target repo's CLAUD
 ```
 
 ## Install
+
+The grilling step needs Matt Pocock's skills (MIT), in the target repo or your user scope:
+
+```bash
+npx skills@latest add mattpocock/skills --skill=grill-with-docs --skill=grilling --skill=domain-modeling
+```
+
 1. Copy `.claude/` and `.agent/` into the repo root; append `CLAUDE.snippet.md` to the repo's own CLAUDE.md. (Or put `.claude/agents` + `.claude/skills` in `~/.claude/` to use across every repo.)
 2. `echo ".agent/runs/*" >> .gitignore && echo "!.agent/runs/.gitkeep" >> .gitignore`
 3. Optional: add a Commands section to the repo's CLAUDE.md — otherwise agents derive commands from package.json / Makefile / CI.
