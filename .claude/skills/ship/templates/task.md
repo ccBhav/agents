@@ -11,7 +11,7 @@
 - [ ] <criterion> (inferred)
 
 ## Constraints / out of scope
-- <e.g. no schema migration, don't touch payroll export>
+- <e.g. no schema migration; payroll export unchanged>
 
 ## References
 - <linked tickets, docs, prior PRs>

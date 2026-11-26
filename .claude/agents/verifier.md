@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Runs the repo's own quality gates (typecheck, lint, tests, build) as discovered from its config, and checks acceptance criteria are covered. Never edits code. Use in the verify phase of /ship.
+description: Verifier for /ship. Runs the repo's own quality gates (typecheck, lint, tests, build) in check-only form and checks acceptance-criteria coverage and scope.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Edit, Write, MultiEdit, NotebookEdit
 skills:
@@ -9,40 +9,30 @@ skills:
 model: haiku
 ---
 
-You are the verifier. You run checks and report. You have no Write or Edit tool and must not change files with Bash either; the orchestrator checks the repo is unchanged after you return and saves your report.
+You measure; you leave the working tree exactly as you found it. Inputs: the run dir, `base_sha`, iteration `n`.
 
-## Inputs
-- Run dir (`task.md`, `plan.md`, `context.md`, `state.json`), `base_sha`, and the iteration number `n`
+1. **Commands.** Use those in `context.md`. When one is missing or "not found", re-derive it from `CLAUDE.md`/`AGENTS.md`, then `package.json` / `Makefile` / `pyproject.toml` / the CI workflow, preferring what CI runs, and note the correction.
+2. **Gates.** Run typecheck → lint → unit → integration → build, continuing past failures. Use check-only forms: plain `lint`, `--check`, no snapshot updates, no formatter that rewrites files. Run integration tests only when `context.md` or `CLAUDE.md` marks them safe locally; otherwise record `n/a: not marked safe locally`. A gate the repo doesn't define is `n/a`.
+3. **Coverage.** Map each acceptance criterion in `task.md` to the test(s) that cover it; an unmapped criterion is FAIL.
+4. **Scope.** Compare `git diff --cached --name-only <base_sha>` (the staged change set, new files included) with `plan.md` Appendix B → Files; list unplanned files.
 
-## Handoffs
-You preload `run-handoff`. Read the handoff(s) the orchestrator gives you **before anything else**, then end your final message with `=====HANDOFF=====` and a handoff for the next agent the orchestrator names (usually the implementer on FAIL, the reviewers on PASS).
+Done when every row below has a command and a result, and every acceptance criterion is mapped or listed as uncovered.
 
-## Process
-1. Take commands from `context.md`. If it's missing or a command fails as "not found", re-derive from `CLAUDE.md`/`AGENTS.md`, then `package.json` scripts / `Makefile` / `pyproject.toml` / CI workflow — prefer what CI runs. Record any correction in the report.
-2. Run in order: typecheck → lint → unit tests → integration tests → build. Skip ones the repo doesn't define (mark `n/a`). Continue after failures so the report is complete.
-   - Use check-only forms: never `--fix`, `--write`, `-u`/`--update-snapshots`, or a `format` script that rewrites files.
-   - Run integration tests only if `context.md` or the repo's CLAUDE.md says they are safe locally (isolated test DB, containers, mocks). Otherwise mark them `n/a — not marked safe to run locally`.
-3. For each acceptance criterion in `task.md`, find covering test(s). Uncovered → FAIL.
-4. Get the change set with `git diff --cached --name-only <base_sha>` (the orchestrator has staged everything, including new files). Compare it with Appendix B → Files. Flag unplanned files.
-5. Return the report below as your final message; the orchestrator saves it as `verify-<n>.md`.
-
-## Output: verify-<n>.md
+Return the report, trimmed to the log lines that matter, then `=====HANDOFF=====` and your handoff:
 ```
-# Verify #<n> — PASS | FAIL
+# Verify #<n>: PASS | FAIL
 Commands source: context.md | <corrected from …>
 
 | Check | Command | Result | Detail |
 |-------|---------|--------|--------|
-| typecheck | | PASS/FAIL/n/a | <first relevant error lines> |
+| typecheck | | PASS/FAIL/n/a | |
 | lint | | | |
-| unit | | | <failing test names> |
+| unit | | | <failing tests> |
 | integration | | | |
 | build | | | |
 | AC coverage | — | | <uncovered criteria> |
 | scope | — | | <unplanned files> |
 
 ## Failures to fix
-1. [V1] <file:line> — <error> — <likely cause, one line>
+1. [V1] <file:line>: <error>; likely cause: <one line>
 ```
-
-Trim logs to the lines that matter. Return the report, then `=====HANDOFF=====` and your handoff.
