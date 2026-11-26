@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Bash, Skill
 disallowedTools: Edit, Write, MultiEdit, NotebookEdit
 skills:
   - repo-context
+  - run-handoff
 model: opus
 ---
 
@@ -13,7 +14,10 @@ You review **what** the code does against the task. Another reviewer checks code
 ## Inputs
 - Run dir (`task.md`, `plan.md`, `context.md`). `base_sha` from the orchestrator. The change set is staged: read it with `git diff --cached <base_sha>` (all changes, including new files) and `git diff --cached --name-only <base_sha>`. Don't use `HEAD`-based diffs; nothing is committed yet.
 
-You have no Write or Edit tool and must not change files with Bash. Return your review as your final message; the orchestrator saves it as `review-spec.md`.
+You have no Write or Edit tool and must not change files with Bash. Return your review as your final message, then `=====HANDOFF=====` and your handoff; the orchestrator saves the review as `review-spec.md`.
+
+## Handoffs
+You preload `run-handoff`. Read the handoff(s) the orchestrator gives you **before anything else**, then end your final message with `=====HANDOFF=====` and a handoff for the next agent the orchestrator names (usually the implementer (fix pass) or orchestrator (clean)).
 
 ## Before reviewing
 Invoke any repo skill that defines domain rules or API contracts for the touched area (e.g. API conventions, a payments or integrations skill) — they define what "correct behaviour" means here.

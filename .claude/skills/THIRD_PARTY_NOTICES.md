@@ -1,9 +1,9 @@
 # Third-party skills
 
-`grill-with-docs/`, `grilling/` and `domain-modeling/` are copied unmodified from
+`grill-with-docs/`, `grilling/`, `domain-modeling/`, `handoff/` and `writing-for-agents/` are copied unmodified from
 [mattpocock/skills](https://github.com/mattpocock/skills) at commit `6f7f7831a625f040a8e06a0e7954826b87ce775a`
 (paths `skills/engineering/grill-with-docs`, `skills/productivity/grilling`,
-`skills/engineering/domain-modeling`). Docs: https://www.aihero.dev/skills-grill-with-docs
+`skills/engineering/domain-modeling`, `skills/productivity/handoff`, `skills/productivity/writing-for-agents`). Docs: https://www.aihero.dev/skills-grill-with-docs, https://www.aihero.dev/skills-handoff, https://www.aihero.dev/skills-writing-for-agents
 
 To update them, re-copy from upstream rather than editing in place.
 

@@ -24,16 +24,37 @@ Every run lives in `.agent/runs/<run-id>/` where `<run-id>` = ticket key, or a k
   verify-<n>.md     # verifier report per iteration
   review-standards.md
   review-spec.md
-  summary.md        # final handoff
+  summary.md        # final summary for the human
+  handoffs/         # NN-<from>-to-<to>.md: context passed between agents (see below)
 ```
 
-Copy `templates/state.json` to start. If a run dir already exists, **resume** from `state.json.phase` instead of restarting.
+Copy `templates/state.json` to start. If a run dir already exists, **resume**: read the newest file in `handoffs/`, then continue from `state.json.phase`.
 
 **You write every run file.** The planner, verifier and reviewers have no Write or Edit tool: they return their document as their final message and you save it to the path above, verbatim.
 
+## Handoffs and agent-facing documents
+
+Each step starts a fresh agent, so context travels in **handoff documents**. At the start of the run, call the Skill tool for `run-handoff` and `writing-for-agents`; they apply to you as well as to every agent (all agents preload `run-handoff`, the planner also preloads `writing-for-agents`).
+
+- **Writing for agents.** Everything an agent will read (`task.md`, `decisions.md`, handoffs, the notes you pass on Revise) is written by `writing-for-agents`: what to do first, a clear completion criterion, pointers to material instead of copies, positive instructions, nothing the reader won't act on.
+- **Every dispatch** passes: the path(s) of the handoff(s) addressed to that agent, and a one-line description of who comes next and what they'll do, so the agent can tailor its own handoff.
+- **Every agent returns** its normal output, then a line `=====HANDOFF=====`, then its handoff. Save the handoff as `handoffs/NN-<from>-to-<to>.md` (NN = next two-digit number in the folder) and give its path to the next agent.
+- **You write handoffs too**, following `run-handoff`: after grilling (→ planner `write`), when the run stops or is interrupted (→ whoever resumes `/ship <run-id>`), and at the end of the run (→ a follow-up session; reference `summary.md`, the commit and open items).
+
+| Step finishes | Its handoff goes to |
+|---|---|
+| planner `prep` | you, for grilling |
+| grilling (you) | planner `write` |
+| planner `write` | implementer |
+| implementer | verifier |
+| verifier FAIL | implementer |
+| verifier PASS | both reviewers (same handoff) |
+| reviewers | implementer, for the fix pass (both handoffs), or you if clean |
+| last step / stop | the next session, via your final handoff |
+
 ## The change set (used by verify and review)
 
-Nothing is committed until handoff, and new files start untracked, so `git diff` alone misses work. Before every verify and every review:
+Nothing is committed until phase 6, and new files start untracked, so `git diff` alone misses work. Before every verify and every review:
 
 ```bash
 git add -A                                   # stage tracked + new files (.agent/ is excluded, see intake)
@@ -41,7 +62,7 @@ git diff --cached --name-only <base_sha>     # files in the change set
 git diff --cached <base_sha>                 # the full change set
 ```
 
-Pass `base_sha` to the verifier and reviewers and tell them to use exactly these commands. Staging is not committing; the commit happens at handoff.
+Pass `base_sha` to the verifier and reviewers and tell them to use exactly these commands. Staging is not committing; the commit happens in phase 6.
 
 ## Read-only check
 
@@ -68,7 +89,7 @@ Planning uses Matt Pocock's **grill-with-docs** approach: before the plan is wri
 
 #### 1a. Prep — `planner` (mode `prep`)
 - Run the read-only check around it.
-- Dispatch `planner` with: `task.md`, the run dir, size, mode `prep`. It returns `context.md` and `frontier.md` separated by `=====FRONTIER=====`. Save both.
+- Dispatch `planner` with: `task.md`, the run dir, size, mode `prep`. It returns `context.md`, `frontier.md` and its handoff to you, separated by `=====FRONTIER=====` and `=====HANDOFF=====`. Save all three; read the handoff before grilling.
 - `frontier.md` lists the **facts it already looked up** (never ask the user these) and the **open decisions** as a tree, each with a recommended answer and its dependencies.
 
 #### 1b. Grill — you, with the user
@@ -81,11 +102,11 @@ Otherwise:
 4. After each round, append the resolved decisions to `decisions.md`:
    `- **<decision>**: <answer> (why: <reason>) [ADR-NNNN if recorded]`
    This file matters: the planner can't see this conversation, so anything not written here is lost.
-5. End when the frontier is empty and the user confirms you share an understanding. Record in `state.json`: `grilled: true`, the list of glossary/ADR files written (`grill_docs`).
+5. End when the frontier is empty and the user confirms you share an understanding. Record in `state.json`: `grilled: true`, the list of glossary/ADR files written (`grill_docs`). Write your handoff to the planner (`write`): what the user cared about most, which decisions were contested and why, which terms changed in the glossary, and anything said in the interview that `decisions.md` doesn't capture.
 
 #### 1c. Write — `planner` (mode `write`)
 - Run the read-only check around it.
-- Dispatch `planner` with: `task.md`, the run dir (it reads `context.md`, `frontier.md`, `decisions.md`, and the glossary/ADRs), size, mode `write`, the `grill_docs` list, and any revision notes. It returns `plan.md`. Save it.
+- Dispatch `planner` with: `task.md`, the run dir (it reads `context.md`, `frontier.md`, `decisions.md`, and the glossary/ADRs), size, mode `write`, the `grill_docs` list, any revision notes, and the latest handoff. It returns `plan.md` and its handoff to the implementer. Save both.
 
 #### Plan gate (human), skipped only with `--auto`
 - `full`: show *1. Introduction*, *2. Goals and non-goals*, *7. Risks and mitigations*, and from Appendix B the *Files* table and *Standards & skills in effect*, plus the path to `plan.md` (the full read includes the TypeScript/JavaScript/Go snippets in Appendix A).
@@ -93,27 +114,27 @@ Otherwise:
 - Ask with AskUserQuestion: **Approve** / **Revise** (with notes) / **Abort**. Revise → planner `write` again with the notes (if a note reopens a design decision, run another grilling round first and update `decisions.md`). Max 3 revisions, then stop and ask. The user may also answer "make it full/lite" to re-plan at the other size.
 
 ### 2. Implement — `implementer` agent
-- Dispatch `implementer` with the run dir (it reads `task.md`, `context.md`, `plan.md`) and, on later iterations, the latest `verify-<n>.md` and/or review files to address.
+- Dispatch `implementer` with the run dir (it reads `task.md`, `context.md`, `plan.md`), the handoff(s) addressed to it, and, on later iterations, the latest `verify-<n>.md` and/or review files to address.
 - It must stay inside Appendix B → Files. If it returns `DEVIATION`, bring that to the user before continuing.
 
 ### 3. Verify — `verifier` agent
 - Stage the change set (above). Run the read-only check around the verifier.
-- Dispatch `verifier` with the run dir, `base_sha` and the iteration number. Save its report as `verify-<n>.md`.
+- Dispatch `verifier` with the run dir, `base_sha`, the iteration number and the implementer's handoff. Save its report as `verify-<n>.md` and its handoff.
 - FAIL → back to phase 2 with the report. **Max 3 implement↔verify iterations.** On the 4th failure: stop, write `summary.md` with status `blocked`, report to the user.
 
 ### 4. Review — `reviewer-standards` + `reviewer-spec` in PARALLEL
 - Stage the change set. Run the read-only check around both.
-- Dispatch both in one message with the run dir and `base_sha`. Save their reports as `review-standards.md` and `review-spec.md`.
+- Dispatch both in one message with the run dir, `base_sha` and the verifier's PASS handoff. Save their reports as `review-standards.md` and `review-spec.md`, and both handoffs.
 - Findings are tagged `blocker | should-fix | nit`.
 
 ### 5. Fix
 - Any `blocker` or `should-fix`: dispatch `implementer` with both review files → phase 3 (same iteration cap) → phase 4 **once more**. Nits go in the summary, not fixed unless trivial.
 - Clean: continue.
 
-### 6. Handoff
+### 6. Commit and push
 1. Stage the change set and show the user `git diff --cached --stat <base_sha>`.
 2. Commit with a conventional message referencing the ticket.
-3. Write `summary.md` from `templates/summary.md`: what changed, how it was verified, open nits, follow-ups.
+3. Write `summary.md` from `templates/summary.md`: what changed, how it was verified, open nits, follow-ups. Then write the final handoff for a follow-up session.
 4. **GATE (human):** ask with AskUserQuestion whether to push (and open a PR). On approval, run `git push -u origin <branch>`. Claude Code then shows its own permission prompt for the push (`settings.json` puts `git push` in `ask`), so the push needs the user's yes twice and an agent can never push on its own. Force-push is always blocked by the guard hook.
 5. If `gh` is available and the user asked for a PR, open it with the summary as the body.
 
@@ -122,5 +143,5 @@ Otherwise:
 - Pass subagents **file paths**, not pasted content.
 - The workflow is repo-agnostic: never hardcode stack rules here. Standards come from the target repo via `repo-context`; `context.md` is the single source every agent shares for a run.
 - Never let a subagent change files outside the plan without surfacing it.
-- If the user interrupts, persist state first so `/ship <run-id>` can resume.
+- If the user interrupts, persist state and write a handoff for the resuming session, so `/ship <run-id>` can pick up from it.
 - Report progress to the user in one line per phase.
