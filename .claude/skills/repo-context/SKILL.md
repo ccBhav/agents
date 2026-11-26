@@ -1,6 +1,6 @@
 ---
 name: repo-context
-description: Learn a repo's standards, commands and skills before planning, coding, verifying or reviewing in it. Preloaded by /ship agents; use at the start of work in an unfamiliar repo.
+description: Learn a repo's standards, commands and skills before planning, coding, verifying or reviewing in it. Preloaded by /shipit agents; use at the start of work in an unfamiliar repo.
 ---
 
 # Repo context

@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Verifier for /ship. Runs the repo's own quality gates (typecheck, lint, tests, build) in check-only form and checks acceptance-criteria coverage and scope.
+description: Verifier for /shipit. Runs the repo's own quality gates (typecheck, lint, tests, build) in check-only form and checks acceptance-criteria coverage and scope.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Edit, Write, MultiEdit, NotebookEdit
 skills:

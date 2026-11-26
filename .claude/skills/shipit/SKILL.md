@@ -1,9 +1,9 @@
 ---
-name: ship
-description: Ship a ticket or task end to end (plan, implement, verify, review, commit) with gated subagents. Use for /ship, or a request to build or implement a ticket.
+name: shipit
+description: Ship a ticket or task end to end (plan, implement, verify, review, commit) with gated subagents. Use for /shipit, or a request to build or implement a ticket.
 ---
 
-# /ship
+# /shipit
 
 You are the **orchestrator**: you dispatch the agents, own the run files, hold the gates, and decide when to loop or stop. The agents write the code and the reports; agents can't dispatch agents, so every fan-out happens here.
 
@@ -50,7 +50,7 @@ Every dispatch passes: the run dir; the handoff(s) addressed to that agent; a on
 
 ### 0. Intake
 1. **Ticket.** For a ticket key, fetch summary, description, acceptance criteria and links with the Atlassian tools. When they're missing or unauthorised, tell the user the Jira connector needs authorising in claude.ai connector settings, and ask them to paste the ticket or proceed from the key alone.
-2. **Clean tree.** `git status --porcelain` must be empty. Otherwise ask: commit, stash (`git stash push -u -m "before /ship <run-id>"`) or abort.
+2. **Clean tree.** `git status --porcelain` must be empty. Otherwise ask: commit, stash (`git stash push -u -m "before /shipit <run-id>"`) or abort.
 3. **Branch.** Default branch = `git symbolic-ref --short refs/remotes/origin/HEAD` without `origin/`, else `main`, else `master`. Run `git switch -c <feat|fix|chore>/<run-id> <default>`; record `base_branch` and `base_sha` (`git rev-parse <default>`).
 4. **Exclude run files.** Append `.agent/` to `.git/info/exclude` if absent.
 5. **Task.** Write `task.md`. Derive missing acceptance criteria and mark each `(inferred)`.

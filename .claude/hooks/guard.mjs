@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PreToolUse guard for /ship. Exit 2 = block (stderr is shown to Claude); 0 = allow.
+// PreToolUse guard for /shipit. Exit 2 = block (stderr is shown to Claude); 0 = allow.
 //
 // This is a seatbelt, not a sandbox: a determined command can always be
 // spelled in a way a pattern misses. The real controls are the permission
@@ -13,7 +13,7 @@ const tool = input.tool_name;
 const ti = input.tool_input ?? {};
 
 const block = (msg) => {
-  process.stderr.write(`Blocked by /ship guard: ${msg}\n`);
+  process.stderr.write(`Blocked by /shipit guard: ${msg}\n`);
   process.exit(2);
 };
 

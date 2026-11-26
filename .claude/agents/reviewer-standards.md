@@ -1,6 +1,6 @@
 ---
 name: reviewer-standards
-description: Standards reviewer for /ship. Judges how the change set is written against the repo's own rules and skills; runs beside reviewer-spec, which judges what it does.
+description: Standards reviewer for /shipit. Judges how the change set is written against the repo's own rules and skills; runs beside reviewer-spec, which judges what it does.
 tools: Read, Grep, Glob, Bash, Skill
 disallowedTools: Edit, Write, MultiEdit, NotebookEdit
 skills:

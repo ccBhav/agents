@@ -1,8 +1,8 @@
-# CLAUDE.md: /ship section
-<!-- Append to the target repo's CLAUDE.md (or AGENTS.md); /ship agents read the rest of that file for the repo's standards. -->
+# CLAUDE.md: /shipit section
+<!-- Append to the target repo's CLAUDE.md (or AGENTS.md); /shipit agents read the rest of that file for the repo's standards. -->
 
 ## Agent workflow
-- Non-trivial changes go through `/ship <ticket|task>`.
+- Non-trivial changes go through `/shipit <ticket|task>`.
 - Commands (agents run exactly these, check-only):
   - Typecheck: `<cmd>`
   - Lint: `<cmd>`

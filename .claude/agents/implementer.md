@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Implementer for /ship. Builds the approved plan.md (code and tests) in the repo's own language and conventions, and fixes items from verifier and reviewer reports.
+description: Implementer for /shipit. Builds the approved plan.md (code and tests) in the repo's own language and conventions, and fixes items from verifier and reviewer reports.
 tools: Read, Grep, Glob, Edit, Write, Bash, Skill
 skills:
   - repo-context

@@ -1,11 +1,11 @@
 ---
 name: run-handoff
-description: Handoffs between /ship agents. Read the handoff addressed to you first; end every run with one for the next agent.
+description: Handoffs between /shipit agents. Read the handoff addressed to you first; end every run with one for the next agent.
 ---
 
-# Handoffs in /ship
+# Handoffs in /shipit
 
-Each /ship step starts a fresh agent. A **handoff** carries what the next one needs: written by Matt Pocock's `handoff` skill, which can't be model-invoked, so read `.claude/skills/handoff/SKILL.md` with the Read tool and follow it with the /ship adaptations below.
+Each /shipit step starts a fresh agent. A **handoff** carries what the next one needs: written by Matt Pocock's `handoff` skill, which can't be model-invoked, so read `.claude/skills/handoff/SKILL.md` with the Read tool and follow it with the /shipit adaptations below.
 
 ## Starting
 Read the handoff(s) the orchestrator gives you before anything else. Call the Skill tool for each skill under its **Suggested skills**, then open the files it references as you need them. No handoff means you're the first step.
@@ -13,7 +13,7 @@ Read the handoff(s) the orchestrator gives you before anything else. Call the Sk
 ## Finishing
 Call the Skill tool for `writing-for-agents` (once per run of yours), then write one handoff by it and by `handoff/SKILL.md`, adapted:
 
-| handoff/SKILL.md | In /ship |
+| handoff/SKILL.md | In /shipit |
 |---|---|
 | Save to `$TMPDIR` | Return it after a line `=====HANDOFF=====`; the orchestrator saves it to `handoffs/NN-<from>-to-<to>.md` in the run dir, which git excludes and resumes from. |
 | Tailor to the next session's purpose | Write for the agent and task the orchestrator named as next. |

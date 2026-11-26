@@ -1,6 +1,6 @@
 ---
 name: reviewer-spec
-description: Spec reviewer for /ship. Judges what the change set does against task.md, decisions.md and plan.md (all of it, and nothing more); runs beside reviewer-standards.
+description: Spec reviewer for /shipit. Judges what the change set does against task.md, decisions.md and plan.md (all of it, and nothing more); runs beside reviewer-standards.
 tools: Read, Grep, Glob, Bash, Skill
 disallowedTools: Edit, Write, MultiEdit, NotebookEdit
 skills:
