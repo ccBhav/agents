@@ -47,6 +47,8 @@ CLAUDE.snippet.md                 # snippet to APPEND to the target repo's CLAUD
     reviewer-standards.md         # how it's written
     reviewer-spec.md              # does it meet the task
   skills/repo-context/SKILL.md    # discovery protocol, preloaded by all agents
+  skills/grill-with-docs/ grilling/ domain-modeling/   # Matt Pocock's grilling skills (MIT)
+  skills/THIRD_PARTY_NOTICES.md
   skills/ship/
     SKILL.md                      # the orchestrator
     templates/{state.json,task.md,summary.md}
@@ -55,11 +57,7 @@ CLAUDE.snippet.md                 # snippet to APPEND to the target repo's CLAUD
 
 ## Install
 
-The grilling step needs Matt Pocock's skills (MIT), in the target repo or your user scope:
-
-```bash
-npx skills@latest add mattpocock/skills --skill=grill-with-docs --skill=grilling --skill=domain-modeling
-```
+The grilling skills (`grill-with-docs`, `grilling`, `domain-modeling`) are bundled in `.claude/skills/`, copied unmodified from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT); see `.claude/skills/THIRD_PARTY_NOTICES.md`. Copying `.claude/` installs them with everything else.
 
 1. Copy `.claude/` and `.agent/` into the repo root; append `CLAUDE.snippet.md` to the repo's own CLAUDE.md. (Or put `.claude/agents` + `.claude/skills` in `~/.claude/` to use across every repo.)
 2. `echo ".agent/runs/*" >> .gitignore && echo "!.agent/runs/.gitkeep" >> .gitignore`

@@ -64,13 +64,7 @@ Before dispatching the planner, verifier or a reviewer, record `git status --por
 
 Planning uses Matt Pocock's **grill-with-docs** approach: before the plan is written, you interview the user about every open design decision, record sharpened domain terms in the repo's `GLOSSARY.md` and hard-to-reverse decisions as ADRs, then the planner writes the plan from those decisions.
 
-`grill-with-docs` is user-invoked only and is simply "run `grilling` + `domain-modeling`", so you load those two skills directly. They must be installed (repo or user scope):
-
-```bash
-npx skills@latest add mattpocock/skills --skill=grill-with-docs --skill=grilling --skill=domain-modeling
-```
-
-If either skill is missing, tell the user that command and ask: install it and retry, or continue with `--no-grill`. Don't imitate the skills from memory.
+`grill-with-docs` is user-invoked only and is simply "run `grilling` + `domain-modeling`", so you load those two skills directly. All three ship with this workflow in `.claude/skills/` (copied from mattpocock/skills, MIT; see `.claude/skills/THIRD_PARTY_NOTICES.md`). If `grilling` or `domain-modeling` can't be loaded, tell the user, and ask whether to continue with `--no-grill`. Don't imitate the skills from memory.
 
 #### 1a. Prep — `planner` (mode `prep`)
 - Run the read-only check around it.
